@@ -5,7 +5,7 @@ import 'dotenv/config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api/afisha');
-  const frontendUrl = process.env.FRONTEND_URL;
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
   app.enableCors({
     origin: frontendUrl,
     credentials: true,
@@ -13,6 +13,6 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   });
   const port = process.env.PORT;
-  await app.listen(port);
+  await app.listen(port || 3000);
 }
 bootstrap();
