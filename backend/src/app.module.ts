@@ -1,40 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
-
-import { configProvider } from './app.config.provider';
-import { MongooseModule } from '@nestjs/mongoose';
-import { FilmSchema } from './films/schemas/film.schema';
+import { DatabaseModule } from './database.module';
 import { FilmsController } from './films/films.controller';
 import { FilmsService } from './films/films.service';
-import { FilmsRepository } from './repository/films.repository';
 import { OrderController } from './order/order.controller';
 import { OrderService } from './order/order.service';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      cache: true,
-      load: [
-        () => ({
-          database: {
-            driver: process.env.DATABASE_DRIVER || 'mongodb',
-            url:
-              process.env.DATABASE_URL || 'mongodb://localhost:27017/practicum',
-          },
-        }),
-      ],
-    }),
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        uri: configService.get<string>('database.url'),
-      }),
-    }),
-    MongooseModule.forFeature([{ name: 'Film', schema: FilmSchema }]),
+    DatabaseModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public', 'content', 'afisha'),
       serveRoot: '/content/afisha',
@@ -55,6 +30,6 @@ import { OrderService } from './order/order.service';
     }),
   ],
   controllers: [FilmsController, OrderController],
-  providers: [configProvider, FilmsService, OrderService, FilmsRepository],
+  providers: [FilmsService, OrderService],
 })
 export class AppModule {}

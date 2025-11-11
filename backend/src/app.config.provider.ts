@@ -6,7 +6,7 @@ export const configProvider = {
   useValue: <AppConfig>{
     database: {
       driver: process.env.DATABASE_DRIVER,
-      url: process.env.DATABASE_URL,
+      url: process.env.MONGODB_URL,
     },
   },
 };
