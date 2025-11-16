@@ -27,12 +27,15 @@ jobs:
         service:
           - name: backend
             dockerfile: backend/Dockerfile.backend
+            context: backend
             image-name: backend
           - name: frontend
             dockerfile: frontend/Dockerfile.frontend
+            context: frontend
             image-name: frontend
           - name: nginx
             dockerfile: nginx/Dockerfile
+            context: .
             image-name: nginx
 
     steps:
@@ -64,7 +67,7 @@ jobs:
       - name: Build and push ${{ matrix.service.name }}
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ${{ matrix.service.context }}
           file: ${{ matrix.service.dockerfile }}
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           tags: ${{ steps.meta.outputs.tags }}
