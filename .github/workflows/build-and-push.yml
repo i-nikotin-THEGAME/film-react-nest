@@ -27,11 +27,11 @@ jobs:
         service:
           - name: backend
             dockerfile: backend/Dockerfile.backend
-            context: backend
+            context: .
             image-name: backend
           - name: frontend
             dockerfile: frontend/Dockerfile.frontend
-            context: frontend
+            context: .
             image-name: frontend
           - name: nginx
             dockerfile: nginx/Dockerfile
