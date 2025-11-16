@@ -60,9 +60,9 @@ jobs:
               run: |
                   echo "✅ Deployment successful!"
                   echo "Services updated:"
-                  echo "  - Backend: ghcr.io/${{ github.repository }}/backend:latest"
-                  echo "  - Frontend: ghcr.io/${{ github.repository }}/frontend:latest"
-                  echo "  - Nginx: ghcr.io/${{ github.repository }}/nginx:latest"
+                  echo "  - Backend: ghcr.io/i-nikotin-thegame/film-react-nest/backend:latest"
+                  echo "  - Frontend: ghcr.io/i-nikotin-thegame/film-react-nest/frontend:latest"
+                  echo "  - Nginx: ghcr.io/i-nikotin-thegame/film-react-nest/nginx:latest"
 
             - name: Notify on deployment failure
               if: failure()
