@@ -1,2 +1,26 @@
 node_modules
 .idea
+
+# Environment variables (production)
+.env
+.env.local
+.env.*.local
+
+# Docker volumes (local data)
+postgres_data/
+pgadmin_data/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+*.swp
+*.swo
+*~
+
+# Build artifacts
+dist/
+build/
+coverage/

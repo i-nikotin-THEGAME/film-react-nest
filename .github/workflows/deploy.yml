@@ -1,0 +1,71 @@
+name: Deploy to Server
+
+on:
+    push:
+        branches:
+            - main
+    workflow_run:
+        workflows: ["Build and Push Docker Images"]
+        types:
+            - completed
+
+permissions:
+    contents: read
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        if: github.event_name == 'push' || (github.event.workflow_run.conclusion == 'success' && github.ref == 'refs/heads/main')
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Deploy to server
+              uses: appleboy/ssh-action@master
+              with:
+                  host: ${{ secrets.SERVER_HOST }}
+                  username: ${{ secrets.SERVER_USER }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  port: ${{ secrets.SERVER_PORT }}
+                  script: |
+                      cd /home/${{ secrets.SERVER_USER }}/film-react-nest || exit 1
+
+                      echo "📦 Pulling latest code..."
+                      git pull origin main
+
+                      echo "🔐 Logging into GitHub Container Registry..."
+                      echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+                      echo "🚀 Running deployment script..."
+                      bash scripts/deploy.sh
+
+                      echo "✅ Deployment completed successfully!"
+
+            - name: Notify deployment status
+              if: always()
+              uses: appleboy/ssh-action@master
+              with:
+                  host: ${{ secrets.SERVER_HOST }}
+                  username: ${{ secrets.SERVER_USER }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  port: ${{ secrets.SERVER_PORT }}
+                  script: |
+                      if [ -f /home/${{ secrets.SERVER_USER }}/deployment.log ]; then
+                        tail -20 /home/${{ secrets.SERVER_USER }}/deployment.log
+                      fi
+
+            - name: Send deployment notification
+              if: success()
+              run: |
+                  echo "✅ Deployment successful!"
+                  echo "Services updated:"
+                  echo "  - Backend: ghcr.io/${{ github.repository }}/backend:latest"
+                  echo "  - Frontend: ghcr.io/${{ github.repository }}/frontend:latest"
+                  echo "  - Nginx: ghcr.io/${{ github.repository }}/nginx:latest"
+
+            - name: Notify on deployment failure
+              if: failure()
+              run: |
+                  echo "❌ Deployment failed!"
+                  echo "Check SSH connection and deployment script logs"

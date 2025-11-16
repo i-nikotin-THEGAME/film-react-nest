@@ -1,0 +1,101 @@
+services:
+  # PostgreSQL База данных
+  postgres:
+    image: postgres:15-alpine
+    container_name: film_postgres
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
+    networks:
+      - film_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USERNAME} -d ${POSTGRES_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # pgAdmin для управления БД
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: film_pgadmin
+    environment:
+    - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
+    - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
+    env_file:
+      - .env
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - film_network
+    depends_on:
+      - postgres
+
+  # Фронтенд (сборка и копирование в volume)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+      args:
+        - NODE_ENV=production
+    container_name: film_frontend
+    env_file:
+      - .env
+      - ./frontend/.env.frontend
+    volumes:
+      - frontend_dist:/usr/share/nginx/html
+    networks:
+      - film_network
+    depends_on:
+      - backend
+
+  # Бэкенд (NestJS приложение)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.backend
+      args:
+        - NODE_ENV=production
+    container_name: film_backend
+    image: ghcr.io/i-nikotin-thegame/film-backend:latest
+    env_file:
+      - ./backend/.env.backend
+      - .env
+    ports:
+      - "3000:3000"
+    networks:
+      - film_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Nginx (веб-сервер и прокси)
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: film_nginx
+    image: ghcr.io/i-nikotin-thegame/film-nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - frontend_dist:/usr/share/nginx/html:ro
+    networks:
+      - film_network
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  frontend_dist:
+
+networks:
+  film_network:
+    driver: bridge
