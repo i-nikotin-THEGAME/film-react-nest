@@ -45,16 +45,16 @@ jobs:
       matrix:
         service:
           - name: backend
-            dockerfile: backend/Dockerfile.backend
-            context: .
+            dockerfile: Dockerfile.backend
+            context: ./backend
             image-name: backend
           - name: frontend
-            dockerfile: frontend/Dockerfile.frontend
-            context: .
+            dockerfile: Dockerfile.frontend
+            context: ./frontend
             image-name: frontend
           - name: nginx
-            dockerfile: nginx/Dockerfile
-            context: .
+            dockerfile: Dockerfile
+            context: ./nginx
             image-name: nginx
 
     steps:

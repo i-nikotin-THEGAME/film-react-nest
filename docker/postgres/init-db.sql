@@ -1,6 +1,9 @@
 -- Connect to postgres database first
 \c postgres
 
+-- Create user first
+CREATE USER prac WITH PASSWORD 'password';
+
 -- Drop existing database if it exists
 DROP DATABASE IF EXISTS prac;
 

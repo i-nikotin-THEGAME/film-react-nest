@@ -4,8 +4,8 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 
 # Копируем package.json и pnpm-lock.yaml
-COPY frontend/package.json ./
-COPY frontend/pnpm-lock.yaml ./
+COPY package.json ./
+COPY pnpm-lock.yaml ./
 
 # Устанавливаем pnpm
 RUN npm install -g pnpm@8.10.2
@@ -17,7 +17,7 @@ RUN npm install -g patch-package
 RUN pnpm install --frozen-lockfile
 
 # Копируем исходный код
-COPY frontend/ ./
+COPY . ./
 
 # Собираем приложение (пропускаем tsc check на storybook типы, идем прямо к vite build)
 RUN pnpm exec vite build

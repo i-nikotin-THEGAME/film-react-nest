@@ -53,7 +53,6 @@ services:
       - frontend_dist:/usr/share/nginx/html
     networks:
       - film_network
-    restart: unless-stopped
     depends_on:
       - backend
 
@@ -74,6 +73,11 @@ services:
     networks:
       - film_network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     depends_on:
       postgres:
         condition: service_healthy
@@ -93,8 +97,10 @@ services:
       - film_network
     restart: unless-stopped
     depends_on:
-      - backend
-      - frontend
+      frontend:
+        condition: service_started
+      backend:
+        condition: service_healthy
 
 volumes:
   postgres_data:

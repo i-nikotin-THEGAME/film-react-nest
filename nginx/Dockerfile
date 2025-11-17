@@ -1,7 +1,7 @@
 FROM nginx:alpine
 
 # Копируем конфигурацию nginx
-COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Точка монтирования для фронтенда
 VOLUME ["/usr/share/nginx/html"]
