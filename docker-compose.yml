@@ -41,8 +41,8 @@ services:
   # Фронтенд (сборка и копирование в volume)
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile.frontend
+      context: .
+      dockerfile: frontend/Dockerfile.frontend
       args:
         - NODE_ENV=production
     container_name: film_frontend
@@ -59,8 +59,8 @@ services:
   # Бэкенд (NestJS приложение)
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile.backend
+      context: .
+      dockerfile: backend/Dockerfile.backend
       args:
         - NODE_ENV=production
     container_name: film_backend
@@ -85,8 +85,8 @@ services:
   # Nginx (веб-сервер и прокси)
   nginx:
     build:
-      context: ./nginx
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: nginx/Dockerfile
     container_name: film_nginx
     image: ghcr.io/i-nikotin-thegame/film-nginx:latest
     ports:
