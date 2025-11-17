@@ -12,6 +12,7 @@ services:
       - ./docker/postgres/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
     networks:
       - film_network
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USERNAME} -d ${POSTGRES_DATABASE}"]
       interval: 10s
@@ -33,6 +34,7 @@ services:
       - pgadmin_data:/var/lib/pgadmin
     networks:
       - film_network
+    restart: unless-stopped
     depends_on:
       - postgres
 
@@ -51,6 +53,7 @@ services:
       - frontend_dist:/usr/share/nginx/html
     networks:
       - film_network
+    restart: unless-stopped
     depends_on:
       - backend
 
@@ -70,6 +73,7 @@ services:
       - "3000:3000"
     networks:
       - film_network
+    restart: unless-stopped
     depends_on:
       postgres:
         condition: service_healthy
@@ -87,6 +91,7 @@ services:
       - frontend_dist:/usr/share/nginx/html:ro
     networks:
       - film_network
+    restart: unless-stopped
     depends_on:
       - backend
       - frontend
