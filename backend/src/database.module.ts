@@ -3,6 +3,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as dotenv from 'dotenv';
+import * as crypto from 'crypto';
+
+// Make crypto available globally for TypeORM
+if (!globalThis.crypto) {
+  globalThis.crypto = crypto as any;
+}
 import { Film } from './films/film.entity';
 import { Schedule } from './order/schedule.entity';
 import { FilmSchema } from './films/schemas/film.schema';
@@ -10,7 +16,7 @@ import { FilmsRepository } from './repository/films.repository';
 import { TypeORMFilmsRepository } from './repository/typeorm.film.repository';
 
 // Загрузить .env при импорте модуля
-dotenv.config();
+dotenv.config({ path: '.env.backend' });
 
 @Module({})
 export class DatabaseModule {

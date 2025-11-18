@@ -1,0 +1,37 @@
+# Stage 1: Build
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Копируем package.json и pnpm-lock.yaml
+COPY frontend/package.json ./
+COPY frontend/pnpm-lock.yaml ./
+
+# Устанавливаем pnpm
+RUN npm install -g pnpm@8.10.2
+
+# Устанавливаем patch-package глобально перед установкой зависимостей
+RUN npm install -g patch-package
+
+# Устанавливаем зависимости (включая devDependencies для build)
+RUN pnpm install --frozen-lockfile
+
+# Копируем исходный код
+COPY frontend/ ./
+
+# Собираем приложение (пропускаем tsc check на storybook типы, идем прямо к vite build)
+RUN pnpm exec vite build
+
+# Stage 2: Output
+FROM alpine:latest
+
+WORKDIR /app
+
+# Копируем собранный код из builder stage
+COPY --from=builder /app/dist /app/dist
+
+# Экспортируем в volume точку монтирования
+VOLUME ["/usr/share/nginx/html"]
+
+# Копируем собранные файлы в volume при запуске контейнера
+CMD ["sh", "-c", "cp -r /app/dist/* /usr/share/nginx/html/"]
